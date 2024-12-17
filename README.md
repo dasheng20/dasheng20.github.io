@@ -1,1 +1,4 @@
-# BrightSt.github.io
+# # 个人笔记
+
+[目录](目录.md)
+
