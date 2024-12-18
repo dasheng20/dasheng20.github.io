@@ -131,7 +131,7 @@ vim --version
 
   ```shell
   mkdir -p /usr/local/lib/docker/cli-plugins
-  curl -SL https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+  sudo curl -SL https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
   ```
 
   * 2. Apply executable permissions to the binary:
@@ -143,7 +143,7 @@ vim --version
   * 3. check
 
   ```shell
-  docker compose version
+  sudo docker compose version
   ```
 
   
@@ -289,6 +289,12 @@ Defaults env_keep="http_proxy https_proxy ftp_proxy no_proxy"
 ### 设置静态IP
 
 sudo vim /etc/network/interfaces
+
+```
+
+```
+
+### 给root设置密码
 
 ```
 
