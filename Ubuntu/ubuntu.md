@@ -86,6 +86,10 @@ vim --version
     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   sudo apt-get update
+  #若果以上报错，运行下面
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  sudo apt update
   ```
 
   * 2. Install the Docker packages.
@@ -211,49 +215,6 @@ sudo chmod +x Snipaste-2.10.3-x86_64.AppImage
   ```
   
 
-### Nextcloud
-
-> 自建云盘
-
-```shell
-sudo -i
-mkdir -p /root/data/docker_data/aio-nextcloud
-cd /root/data/docker_data/aio-nextcloud
-
-vim docker-compose.yml
-```
-
-yaml文件的内容
-
-```yaml
-version: "3.8"
-
-services:
-  nextcloud-aio-mastercontainer:
-    image: nextcloud/all-in-one:latest
-    init: true
-    restart: always
-    container_name: nextcloud-aio-mastercontainer # This line is not allowed to be changed as otherwise AIO will not work correctly
-    volumes:
-      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config # This line is not allowed to be changed as otherwise the built-in backup solution will not work
-      - /var/run/docker.sock:/var/run/docker.sock:ro # May be changed on macOS, Windows or docker rootless. See the applicable documentation. If adjusting, don't forget to also set 'WATCHTOWER_DOCKER_SOCKET_PATH'!
-    network_mode: bridge # add to the same network as docker run would do
-    ports:
-      - 8090:8080
-    environment:
-      - APACHE_PORT=11000  # change this port number if 11000 is already in use on your host system.
-      - APACHE_IP_BINDING=192.168.110.246     #改成你搭建的服务器的IP
-      - BORG_RETENTION_POLICY=--keep-within=7d --keep-weekly=4 --keep-monthly=6
-      - NEXTCLOUD_UPLOAD_LIMIT=50G
-      - NEXTCLOUD_MAX_TIME=3600
-      - NEXTCLOUD_MEMORY_LIMIT=1024M
-      - NEXTCLOUD_ADDITIONAL_PHP_EXTENSIONS=imagick
-volumes: # If you want to store the data on a different drive, see https://github.com/nextcloud/all-in-one#how-to-store-the-filesinstallation-on-a-separate-drive
-  nextcloud_aio_mastercontainer:
-    name: nextcloud_aio_mastercontainer # This line is not allowed to be changed as otherwise the built-in backup solution will not work
-
-```
-
 
 
 ## 二、系统设置
@@ -294,9 +255,33 @@ sudo vim /etc/network/interfaces
 
 ```
 
+### 允许root ssh
+
+```
+vim /etc/ssh/sshd_config
+PermitRootLogin yes
+systemctl restart ssh
+```
+
 ### 给root设置密码
 
+```shell
+sudo passwd root
 ```
 
-```
+### 配置代理
 
+```shell
+# 配置系统代理
+vim ~/.bashrc
+export http_proxy="http://192.168.127.1:17890"
+export https_proxy="http://192.168.127.1:17890"
+export ftp_proxy="http://192.168.127.1:17890"
+export no_proxy="localhost,127.0.0.1,192.168.1.0/24"
+source ~/.bashrc
+
+# 配置apt代理
+sudo vim /etc/apt/apt.conf.d/95proxies
+Acquire::http::Proxy "http://192.168.127.1:17890";
+Acquire::https::Proxy "http://192.168.127.1:17890";
+```
